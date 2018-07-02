@@ -1,8 +1,6 @@
 # Use the Ubuntu Xenial runtime as the parent image
 FROM ubuntu:xenial
 
-# Set the working directory to /app
-
 # Copy packages.txt into the container
 ADD packages.txt /app
 
@@ -10,7 +8,7 @@ ADD packages.txt /app
 RUN apt-get update
 RUN apt-get install -y dos2unix
 RUN dos2unix packages.txt
-RUN apt-get install -y $(grep -vE "^\s*#" packages.txt  | tr "\n" " ")
+RUN apt-get install -y $(grep -vE "^\s*#" /app/packages.txt  | tr "\n" " ")
 
 # Create the appuser user
 RUN useradd appuser
