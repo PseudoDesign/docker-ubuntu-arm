@@ -1,0 +1,6 @@
+# docker-ubuntu-arm
+
+## Building the docker container
+To build the docker container, execute
+
+`docker build -t docker-ubuntu-arm .`
