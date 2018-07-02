@@ -32,7 +32,7 @@ task :clean_version_log do
 end
 
 task :packages_log do
-  sh "apt list --installed >> #{PACKAGES_LOG_FILE}"
+  sh "apt list --installed > #{PACKAGES_LOG_FILE}"
 end
 
 # Tasks related to building the Linux kernel
