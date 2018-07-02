@@ -13,6 +13,7 @@ UBOOT_DIR = "/home/appuser/uboot"
 LINUX_DIR = "/home/appuser/linux"
 
 SOURCES_LOG_FILE = "/home/appuser/log.txt"
+PACKAGES_LOG_FILE = "/home/appuser/package_log.txt"
 
 def crossmake(target)
   arch = "arm"
@@ -28,6 +29,10 @@ end
 
 task :clean_version_log do
   sh "rm -f #{SOURCES_LOG_FILE}"
+end
+
+task :packages_log do
+  sh "apt list --installed >> #{PACKAGES_LOG_FILE}"
 end
 
 # Tasks related to building the Linux kernel
@@ -72,6 +77,8 @@ task :uboot => [:get_uboot] do
   end
 end
 
-task :release => [:clean_version_log, :linux, :uboot] do
+# Tasks releated to building a released version of the system
+
+task :release => [:packages_log, :clean_version_log, :linux, :uboot] do
   add_to_version_log("Timestamp", `date`)
 end
