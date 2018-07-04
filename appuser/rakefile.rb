@@ -8,6 +8,8 @@ UBOOT_REPO = "git://git.freescale.com/imx/uboot-imx.git"
 UBOOT_CONFIG = 'mx6ull_14x14_evk_defconfig'
 KERNEL_CONFIG = 'imx_v6_v7_defconfig'
 
+ENABLE_ROOT_ACCOUNT = true
+ENABLE_SERIAL_CONSOLE = true
 ROOT_PASSWORD = "12345"
 
 # Variables that are defined locally
@@ -68,9 +70,14 @@ task :rootfs do
    apt-get update
    apt-get upgrade -y
    apt-get install -y vim
-   echo '#{ROOT_PASSWORD}' passwd root --stdin
-   ln -s /lib/systemd/system/getty@.service getty@ttymxc0.service
   "
+  bootstrap_script += "echo '#{ROOT_PASSWORD}' passwd root --stdin\n" if defined? ENABLE_ROOT_ACCOUNT and ENABLE_ROOT_ACCOUNT
+  if defined? ENABLE_SERIAL_CONSOLE and ENABLE_SERIAL_CONSOLE do
+    bootstrap_script = "
+     ln -s /lib/systemd/system/getty@.service getty@ttymxc0.service
+     systemctl enable getty@ttymxc0.service
+    "
+  end
   File.write(".bootstrap.sh", bootstrap_script)
    `
     sudo chown root:root .bootstrap.sh
