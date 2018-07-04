@@ -8,6 +8,8 @@ UBOOT_REPO = "git://git.freescale.com/imx/uboot-imx.git"
 UBOOT_CONFIG = 'mx6ull_14x14_evk_defconfig'
 KERNEL_CONFIG = 'imx_v6_v7_defconfig'
 
+DTB_NAME = "imx6ull-14x14-evk*.dtb"
+
 ENABLE_ROOT_ACCOUNT = true
 ENABLE_IMX_SERIAL_CONSOLE = true
 ROOT_PASSWORD = "12345"
@@ -16,6 +18,9 @@ ROOT_PASSWORD = "12345"
 UBOOT_DIR = "/home/appuser/uboot"
 LINUX_DIR = "/home/appuser/linux"
 ROOTFS_DIR = "/home/appuser/ubuntu"
+PARTITIONS_DIR = "/home/appuser/partitions"
+BOOT_PARITION_DIR = PARTITIONS_DIR + "/boot"
+ROOTFS_PARITION_DIR = PARTITIONS_DIR + "/rootfs"
 
 SOURCES_LOG_FILE = "/home/appuser/log.txt"
 PACKAGES_LOG_FILE = "/home/appuser/package_log.txt"
@@ -132,6 +137,32 @@ task :uboot => [:get_uboot] do
     crossmake("")
     add_to_version_log("Uboot Commit Hash", `git rev-parse HEAD`)
   end
+end
+
+# Tasks related to populating the boot and rootfs partitions
+
+task :clean_partitions do
+  sh "rm -rf #{PARTITIONS_DIR}"
+end
+
+task :boot_partition do
+  # Note that the build needs to be completed to do this install.
+  sh "mkdir -p #{BOOT_PARITION_DIR}"
+  # Install the kernel image
+  sh "cp #{LINUX_DIR}/arch/arm/boot/zImage #{BOOT_PARITION_DIR}"
+  # Install the dtb(s)
+  sh "cp #{LINUX_DIR}/arch/arm/boot/dts/#{DTB_NAME} #{BOOT_PARITION_DIR}"
+end
+
+task :rootfs_partition do
+  # Note that the build needs to be completed to do this install
+  sh "mkdir -p #{ROOTFS_PARITION_DIR}"
+  # Copy the rootfs
+  sh "cp -r #{ROOTFS_DIR}/* #{ROOTFS_PARITION_DIR}"
+  # Install headers
+  sh "sudo make -C #{LINUX_DIR} ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- headers_install INSTALL_HDR_PATH=#{ROOTFS_PARITION_DIR}/usr  "
+  # Install firmware
+  sh "sudo make -C #{LINUX_DIR} modules_install firmware_install INSTALL_MOD_PATH=#{ROOTFS_PARITION_DIR} ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- "
 end
 
 # Tasks releated to building a released version of the system
