@@ -6,4 +6,4 @@ Build the docker image by executing
 `docker build -t docker-ubuntu-arm .`
 
 ## Bring up docker image shell
-`docker run -u appuser -it docker-ubuntu-arm /bin/bash`
+`docker run -u appuser -it --privileged docker-ubuntu-arm /bin/bash`
