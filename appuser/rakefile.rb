@@ -8,12 +8,17 @@ UBOOT_REPO = "git://git.freescale.com/imx/uboot-imx.git"
 UBOOT_CONFIG = 'mx6ull_14x14_evk_defconfig'
 KERNEL_CONFIG = 'imx_v6_v7_defconfig'
 
+ROOT_PASSWORD = "12345"
+
 # Variables that are defined locally
 UBOOT_DIR = "/home/appuser/uboot"
 LINUX_DIR = "/home/appuser/linux"
+ROOTFS_DIR = "/home/appuser/ubuntu"
 
 SOURCES_LOG_FILE = "/home/appuser/log.txt"
 PACKAGES_LOG_FILE = "/home/appuser/package_log.txt"
+
+UBUNTU_VERSION = "xenial"
 
 def crossmake(target)
   arch = "arm"
@@ -33,6 +38,51 @@ end
 
 task :packages_log do
   sh "apt list --installed > #{PACKAGES_LOG_FILE}"
+end
+
+# Tasks related to building the Ubuntu rootfs
+
+task :clean_rootfs do
+  sh "rm -rf #{ROOTFS_DIR}"
+end
+
+task :rootfs do
+  # Install stage one of our rootfs
+  `
+  mkdir -p #{ROOTFS_DIR}
+  sudo debootstrap --arch=armhf --foreign --include=ubuntu-keyring,apt-transport-https,ca-certificates,openssl #{UBUNTU_VERSION} "#{ROOTFS_DIR}" http://ports.ubuntu.com
+  sudo cp /usr/bin/qemu-arm-static #{ROOTFS_DIR}/usr/bin
+  sudo cp /etc/resolv.conf #{ROOTFS_DIR}/etc
+  `
+  # chroot into the rootfs dir, then run second stage
+  bootstrap_script =
+  "
+   set -v
+   export LC_ALL=C LANGUAGE=C LANG=C
+   /debootstrap/debootstrap --second-stage
+   echo \"deb http://ports.ubuntu.com/ubuntu-ports/ #{UBUNTU_VERSION} main restricted universe multiverse\" > /etc/apt/sources.list
+   echo \"deb http://ports.ubuntu.com/ubuntu-ports/ #{UBUNTU_VERSION}-updates main restricted universe multiverse\" >> /etc/apt/sources.list
+   echo \"deb http://ports.ubuntu.com/ubuntu-ports/ #{UBUNTU_VERSION}-security main restricted universe multiverse\" >> /etc/apt/sources.list
+   apt-key add --recv-keys --keyserver keyserver.ubuntu.com 40976EAF437D05B5
+   apt-key add --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32
+   apt-get update
+   apt-get upgrade -y
+   apt-get install -y vim
+   echo '#{ROOT_PASSWORD}' passwd root --stdin
+   ln -s /lib/systemd/system/getty@.service getty@ttymxc0.service
+  "
+  File.write(".bootstrap.sh", bootstrap_script)
+   `
+    sudo chown root:root .bootstrap.sh
+    sudo chmod +x .bootstrap.sh
+    sudo mv .bootstrap.sh #{ROOTFS_DIR}
+    sudo chroot #{ROOTFS_DIR} ./.bootstrap.sh
+   `
+   # Clean up qemu and resolv.conf
+   `
+    sudo rm #{ROOTFS_DIR}/etc/resolv.conf
+    sudo rm #{ROOTFS_DIR}/usr/bin/qemu-arm-static
+   `
 end
 
 # Tasks related to building the Linux kernel
@@ -81,4 +131,5 @@ end
 
 task :release => [:packages_log, :clean_version_log, :linux, :uboot] do
   add_to_version_log("Timestamp", `date`)
+  ad_to_version_log("Root Password", ROOT_PASSWORD)
 end
