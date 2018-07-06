@@ -43,7 +43,9 @@ BOOT_PARITION_DIR = PARTITIONS_DIR + "/boot"
 ROOTFS_PARITION_DIR = PARTITIONS_DIR + "/rootfs"
 
 SOURCES_LOG_FILE = "/home/appuser/log.txt"
-PACKAGES_LOG_FILE = "/home/appuser/package_log.txt"
+HOST_PACKAGES_LOG_FILE = "/home/appuser/host_package_log.txt"
+
+TARGET_PACKAGES_LOG_FILENAME = "target_package_log.txt"
 
 UBUNTU_VERSION = "xenial"
 
@@ -66,7 +68,7 @@ task :clean_version_log do
 end
 
 task :packages_log do
-  sh "apt list --installed > #{PACKAGES_LOG_FILE}"
+  sh "apt list --installed > #{HOST_PACKAGES_LOG_FILE}"
 end
 
 # Tasks related to building the Ubuntu rootfs
@@ -105,6 +107,7 @@ task :rootfs do
      systemctl enable getty@ttymxc0.service
     "
   end
+  bootstrap_script += "apt list --installed > /#{TARGET_PACKAGES_LOG_FILENAME}"
   File.write(".bootstrap.sh", bootstrap_script)
    `
     sudo chown root:root .bootstrap.sh
@@ -117,6 +120,8 @@ task :rootfs do
     sudo rm #{ROOTFS_DIR}/etc/resolv.conf
     sudo rm #{ROOTFS_DIR}/usr/bin/qemu-arm-static
    `
+   # Copy the packages log file
+   `sudo cp #{ROOTFS_DIR}/#{TARGET_PACKAGES_LOG_FILENAME} /home/appuser`
 end
 
 # Tasks related to building the Linux kernel

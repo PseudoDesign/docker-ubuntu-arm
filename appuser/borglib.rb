@@ -7,10 +7,7 @@
 class BorgLib
 
   def self.create_block_devices(filename)
-    `
-    sudo kpartx -av #{filename}
-    sleep .5
-    `
+    `sudo kpartx -asv #{filename}`
     begin
       yield
     ensure
