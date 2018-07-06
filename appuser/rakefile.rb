@@ -109,7 +109,9 @@ task :rootfs do
      systemctl enable getty@ttymxc0.service
     "
   end
-  bootstrap_script += "apt list --installed > /#{TARGET_PACKAGES_LOG_FILENAME}"
+  bootstrap_script += "
+  apt list --installed > /#{TARGET_PACKAGES_LOG_FILENAME}
+  "
   File.write(".bootstrap.sh", bootstrap_script)
    `
     sudo chown root:root .bootstrap.sh
@@ -219,6 +221,6 @@ task :release => [:packages_log, :clean_version_log, :linux, :uboot, :rootfs] do
   add_to_version_log("Timestamp", `date`)
   add_to_version_log("Root Password", ROOT_PASSWORD)
   # Copy log files to share
-  sh "mkdir -p #{RELEASE_DIRECTORY}"
-  sh "cp /home/appuser/*.txt #{RELEASE_DIRECTORY}"
+  sh "sudo mkdir -p #{RELEASE_DIRECTORY}"
+  sh "sudo cp /home/appuser/*.txt #{RELEASE_DIRECTORY}"
 end
