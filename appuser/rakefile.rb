@@ -1,3 +1,5 @@
+require "/home/appuser/borglib.rb"
+
 # Variables that need to be defined in a settings file
 LINUX_BRANCH = "Ubuntu-4.4.0-128.154"
 LINUX_REPO = "git://kernel.ubuntu.com/ubuntu/ubuntu-xenial.git"
@@ -14,6 +16,24 @@ ENABLE_ROOT_ACCOUNT = true
 ENABLE_IMX_SERIAL_CONSOLE = true
 ROOT_PASSWORD = "12345"
 
+UBOOT_BINARY_NAME = "u-boot.imx"
+
+PARTITION_INFO = [
+  {
+    partition_name: "boot",
+    partition_start_sector: 2048,
+    partition_length_sectors: (1024 * 1024 * 500 / 4)/512,
+    fdisk_type: "6", # FAT16
+    mkfs_command: "mkfs.vfat"
+  },
+  {
+    partition_name: "rootfs1",
+    partition_start_sector: 280000,
+    partition_length_sectors: (1024 * 1024 * 500)/512,
+    mkfs_command: "mkfs.ext3"
+  }
+]
+
 # Variables that are defined locally
 UBOOT_DIR = "/home/appuser/uboot"
 LINUX_DIR = "/home/appuser/linux"
@@ -26,6 +46,8 @@ SOURCES_LOG_FILE = "/home/appuser/log.txt"
 PACKAGES_LOG_FILE = "/home/appuser/package_log.txt"
 
 UBUNTU_VERSION = "xenial"
+
+TEMP_SD_FILENAME = "/home/appuser/.build.img"
 
 def crossmake(target)
   arch = "arm"
@@ -166,6 +188,25 @@ task :rootfs_partition do
 end
 
 # Tasks releated to building a released version of the system
+
+task :sd_card => [:release, :boot_partition, :rootfs_partition] do
+  sh "rm -f #{TEMP_SD_FILENAME}"
+  BorgLib.create_image(TEMP_SD_FILENAME, PARTITION_INFO)
+  BorgLib.mount_partitions(TEMP_SD_FILENAME, PARTITION_INFO) do
+    `
+      sudo cp -r #{BOOT_PARITION_DIR}/* /var/.tmpmnt/boot
+      sudo cp -r #{ROOTFS_PARITION_DIR}/* /var/.tmpmnt/rootfs1
+    `
+  end
+  # Write uboot
+  `
+  dd conv=notrunc if=#{BOOT_PARITION_DIR}/#{UBOOT_BINARY_NAME} of=#{TEMP_SD_FILENAME} bs=512 seek=2
+  `
+  `
+    mkdir -p /share/images
+    cp /home/vagrant/.tmpsd.img /share/images/#{Time.now.strftime('%Y-%m-%d_%H-%M-%S')}.img
+  `
+end
 
 task :release => [:packages_log, :clean_version_log, :linux, :uboot] do
   add_to_version_log("Timestamp", `date`)
