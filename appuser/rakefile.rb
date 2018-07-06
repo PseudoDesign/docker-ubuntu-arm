@@ -8,7 +8,7 @@ UBOOT_REPO = "git://git.freescale.com/imx/uboot-imx.git"
 UBOOT_CONFIG = 'mx6ull_14x14_evk_defconfig'
 KERNEL_CONFIG = 'imx_v6_v7_defconfig'
 
-DTB_NAME = "imx6ull-14x14-evk*.dtb"
+DTB_NAME = "imx6q-sabreauto.dtb"
 
 ENABLE_ROOT_ACCOUNT = true
 ENABLE_IMX_SERIAL_CONSOLE = true
@@ -77,7 +77,7 @@ task :rootfs do
    apt-get install -y vim
   "
   bootstrap_script += "echo '#{ROOT_PASSWORD}' passwd root --stdin\n" if defined? ENABLE_ROOT_ACCOUNT and ENABLE_ROOT_ACCOUNT
-  if defined? ENABLE_IMX_SERIAL_CONSOLE and ENABLE_IMX_SERIAL_CONSOLE do
+  if defined? ENABLE_IMX_SERIAL_CONSOLE and ENABLE_IMX_SERIAL_CONSOLE
     bootstrap_script = "
      ln -s /lib/systemd/system/getty@.service getty@ttymxc0.service
      systemctl enable getty@ttymxc0.service
@@ -158,7 +158,7 @@ task :rootfs_partition do
   # Note that the build needs to be completed to do this install
   sh "mkdir -p #{ROOTFS_PARITION_DIR}"
   # Copy the rootfs
-  sh "cp -r #{ROOTFS_DIR}/* #{ROOTFS_PARITION_DIR}"
+  sh "sudo cp -r #{ROOTFS_DIR}/* #{ROOTFS_PARITION_DIR}"
   # Install headers
   sh "sudo make -C #{LINUX_DIR} ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- headers_install INSTALL_HDR_PATH=#{ROOTFS_PARITION_DIR}/usr  "
   # Install firmware
@@ -169,5 +169,5 @@ end
 
 task :release => [:packages_log, :clean_version_log, :linux, :uboot] do
   add_to_version_log("Timestamp", `date`)
-  ad_to_version_log("Root Password", ROOT_PASSWORD)
+  add_to_version_log("Root Password", ROOT_PASSWORD)
 end
