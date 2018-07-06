@@ -51,7 +51,7 @@ UBUNTU_VERSION = "xenial"
 
 TEMP_SD_FILENAME = "/home/appuser/.build.img"
 
-RELEASE_DIRECTORY = "/share/#{Time.now.strftime('%Y-%m-%d_%H-%M-%S')}"
+RELEASE_DIRECTORY = "/share/release_#{Time.now.strftime('%Y-%m-%d_%H-%M-%S')}"
 
 def crossmake(target)
   arch = "arm"
