@@ -16,7 +16,7 @@ ENABLE_ROOT_ACCOUNT = true
 ENABLE_IMX_SERIAL_CONSOLE = true
 ROOT_PASSWORD = "12345"
 
-UBOOT_BINARY_NAME = "u-boot.imx"
+UBOOT_BINARY_NAME = "u-boot-dtb.imx"
 
 PARTITION_INFO = [
   {
@@ -200,15 +200,11 @@ task :sd_card => [:release, :boot_partition, :rootfs_partition] do
   end
   # Write uboot
   `
-  dd conv=notrunc if=#{BOOT_PARITION_DIR}/#{UBOOT_BINARY_NAME} of=#{TEMP_SD_FILENAME} bs=512 seek=2
-  `
-  `
-    mkdir -p /share/images
-    cp /home/vagrant/.tmpsd.img /share/images/#{Time.now.strftime('%Y-%m-%d_%H-%M-%S')}.img
+  dd conv=notrunc if=#{UBOOT_DIR}/#{UBOOT_BINARY_NAME} of=#{TEMP_SD_FILENAME} bs=512 seek=2
   `
 end
 
-task :release => [:packages_log, :clean_version_log, :linux, :uboot] do
+task :release => [:packages_log, :clean_version_log, :linux, :uboot, :rootfs] do
   add_to_version_log("Timestamp", `date`)
   add_to_version_log("Root Password", ROOT_PASSWORD)
 end
