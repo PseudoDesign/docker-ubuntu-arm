@@ -104,7 +104,7 @@ end
 task :get_linux do
   add_to_version_log("Linux Repo", LINUX_REPO)
   add_to_version_log("Linux Branch", LINUX_BRANCH)
-  sh "git clone --depth=1 --single-branch -b #{LINUX_BRANCH} #{LINUX_REPO} #{LINUX_DIR}"
+  sh "git clone --single-branch -b #{LINUX_BRANCH} #{LINUX_REPO} #{LINUX_DIR}"
 end
 
 task :linux => [:get_linux] do
@@ -125,7 +125,7 @@ end
 task :get_uboot do
   add_to_version_log("Uboot Repo", UBOOT_REPO)
   add_to_version_log("Uboot Branch", UBOOT_BRANCH)
-  sh "git clone --depth=1 --single-branch -b #{UBOOT_BRANCH} #{UBOOT_REPO} #{UBOOT_DIR}"
+  sh "git clone --single-branch -b #{UBOOT_BRANCH} #{UBOOT_REPO} #{UBOOT_DIR}"
 end
 
 task :uboot => [:get_uboot] do
