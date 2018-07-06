@@ -51,6 +51,8 @@ UBUNTU_VERSION = "xenial"
 
 TEMP_SD_FILENAME = "/home/appuser/.build.img"
 
+RELEASE_DIRECTORY = "/share/#{Time.now.strftime('%Y-%m-%d_%H-%M-%S')}"
+
 def crossmake(target)
   arch = "arm"
   cross_compile = "arm-linux-gnueabihf-"
@@ -207,9 +209,16 @@ task :sd_card => [:release, :boot_partition, :rootfs_partition] do
   `
   dd conv=notrunc if=#{UBOOT_DIR}/#{UBOOT_BINARY_NAME} of=#{TEMP_SD_FILENAME} bs=512 seek=2
   `
+  # Copy file to /share
+  `
+  sudo cp #{TEMP_SD_FILENAME} #{RELEASE_DIRECTORY}/output.img
+  `
 end
 
 task :release => [:packages_log, :clean_version_log, :linux, :uboot, :rootfs] do
   add_to_version_log("Timestamp", `date`)
   add_to_version_log("Root Password", ROOT_PASSWORD)
+  # Copy log files to share
+  sh "mkdir -p #{RELEASE_DIRECTORY}"
+  sh "cp /home/appuser/*.txt #{RELEASE_DIRECTORY}"
 end
