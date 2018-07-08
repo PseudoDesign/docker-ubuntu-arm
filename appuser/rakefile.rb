@@ -73,7 +73,6 @@ task :rootfs do
   if defined? ENABLE_IMX_SERIAL_CONSOLE and ENABLE_IMX_SERIAL_CONSOLE
     bootstrap_script = "
      ln -s /lib/systemd/system/getty@.service getty@ttymxc0.service
-     systemctl enable getty@ttymxc0.service
     "
   end
   bootstrap_script += "

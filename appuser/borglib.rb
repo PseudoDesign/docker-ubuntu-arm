@@ -7,6 +7,7 @@
 class BorgLib
 
   def self.create_block_devices(filename)
+    sleep(0.5)
     `sudo kpartx -asv #{filename}`
     begin
       yield
@@ -14,9 +15,10 @@ class BorgLib
       sleep(0.5)
       `
       sync
-      sudo kpartx -d #{filename}
+      sudo kpartx -sd #{filename}
       sync
       `
+      sleep(0.5)
     end
   end
 
