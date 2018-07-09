@@ -14,7 +14,7 @@ HOST_PACKAGES_LOG_FILE = "/home/appuser/host_package_log.txt"
 
 TARGET_PACKAGES_LOG_FILENAME = "target_package_log.txt"
 
-UBUNTU_VERSION = "xenial"
+UBUNTU_VERSION = "trusty"
 
 TEMP_SD_FILENAME = "/home/appuser/.build.img"
 
@@ -72,7 +72,14 @@ task :rootfs do
   bootstrap_script += "echo '#{ROOT_PASSWORD}' passwd root --stdin\n" if defined? ENABLE_ROOT_ACCOUNT and ENABLE_ROOT_ACCOUNT
   if defined? ENABLE_IMX_SERIAL_CONSOLE and ENABLE_IMX_SERIAL_CONSOLE
     bootstrap_script = "
-     ln -s /lib/systemd/system/getty@.service getty@ttymxc0.service
+          echo \"
+      start on stopped rc RUNLEVEL=[2345] and (
+                not-container or
+                container CONTAINER=lxc or
+                container CONTAINER=lxc-libvirt)
+      stop on runlevel [!2345]
+      respawn
+      exec /sbin/getty -L 115200 ttymxc0\" > /etc/init/tty1.conf
     "
   end
   bootstrap_script += "
@@ -103,7 +110,7 @@ end
 task :get_linux do
   add_to_version_log("Linux Repo", LINUX_REPO)
   add_to_version_log("Linux Branch", LINUX_BRANCH)
-  sh "git clone --single-branch -b #{LINUX_BRANCH} #{LINUX_REPO} #{LINUX_DIR}"
+  sh "git clone --depth=1 --single-branch -b #{LINUX_BRANCH} #{LINUX_REPO} #{LINUX_DIR}"
 end
 
 task :linux => [:get_linux] do
@@ -124,7 +131,7 @@ end
 task :get_uboot do
   add_to_version_log("Uboot Repo", UBOOT_REPO)
   add_to_version_log("Uboot Branch", UBOOT_BRANCH)
-  sh "git clone --single-branch -b #{UBOOT_BRANCH} #{UBOOT_REPO} #{UBOOT_DIR}"
+  sh "git clone --depth=1 --single-branch -b #{UBOOT_BRANCH} #{UBOOT_REPO} #{UBOOT_DIR}"
 end
 
 task :uboot => [:get_uboot] do
