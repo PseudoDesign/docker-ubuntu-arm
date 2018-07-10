@@ -1,8 +1,6 @@
 require "/home/appuser/borglib.rb"
 require "/share/settings.rb"
 
-IMPORT_KERNEL_DEFCONFIG = "/share/imx_v7_with_fhandle"
-
 # Variables that are defined locally
 UBOOT_DIR = "/home/appuser/uboot"
 LINUX_DIR = "/home/appuser/linux"
