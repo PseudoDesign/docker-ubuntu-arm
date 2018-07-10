@@ -5,6 +5,8 @@ LINUX_REPO = "git://kernel.ubuntu.com/ubuntu/ubuntu-xenial.git"
 UBOOT_BRANCH = "rel_imx_4.9.x_1.0.0_ga"
 UBOOT_REPO = "git://git.freescale.com/imx/uboot-imx.git"
 
+# IMPORT_KERNEL_DEFCONFIG = "/share/imx_v7_with_fhandle"
+
 UBOOT_CONFIG = 'mx6ull_14x14_evk_defconfig'
 KERNEL_CONFIG = 'imx_v6_v7_defconfig'
 
