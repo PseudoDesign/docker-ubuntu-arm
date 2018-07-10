@@ -1,6 +1,8 @@
 require "/home/appuser/borglib.rb"
 require "/share/settings.rb"
 
+IMPORT_KERNEL_DEFCONFIG = "/share/imx_v7_with_fhandle"
+
 # Variables that are defined locally
 UBOOT_DIR = "/home/appuser/uboot"
 LINUX_DIR = "/home/appuser/linux"
@@ -8,6 +10,8 @@ ROOTFS_DIR = "/home/appuser/ubuntu"
 PARTITIONS_DIR = "/home/appuser/partitions"
 BOOT_PARITION_DIR = PARTITIONS_DIR + "/boot"
 ROOTFS_PARITION_DIR = PARTITIONS_DIR + "/rootfs"
+
+KERNEL_CONFIGS_DIR = LINUX_DIR + "/arch/arm/configs"
 
 SOURCES_LOG_FILE = "/home/appuser/log.txt"
 HOST_PACKAGES_LOG_FILE = "/home/appuser/host_package_log.txt"
@@ -104,6 +108,9 @@ task :get_linux do
   add_to_version_log("Linux Repo", LINUX_REPO)
   add_to_version_log("Linux Branch", LINUX_BRANCH)
   sh "git clone --single-branch -b #{LINUX_BRANCH} #{LINUX_REPO} #{LINUX_DIR}"
+  if defined? IMPORT_KERNEL_DEFCONFIG and IMPORT_KERNEL_DEFCONFIG
+    sh "cp #{IMPORT_KERNEL_DEFCONFIG} #{KERNEL_CONFIGS_DIR}"
+  end
 end
 
 task :linux => [:get_linux] do
