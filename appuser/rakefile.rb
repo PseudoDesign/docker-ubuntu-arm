@@ -73,9 +73,9 @@ task :rootfs do
   "
   bootstrap_script += "echo '#{ROOT_PASSWORD}' passwd root --stdin\n" if defined? ENABLE_ROOT_ACCOUNT and ENABLE_ROOT_ACCOUNT
   if defined? ENABLE_IMX_SERIAL_CONSOLE and ENABLE_IMX_SERIAL_CONSOLE
-    bootstrap_script = "
-     ln -s /lib/systemd/system/getty@.service getty@ttymxc0.service
-    "
+  #  bootstrap_script = "
+  #   ln -s /lib/systemd/system/getty@.service getty@ttymxc0.service
+  #  "
   end
   bootstrap_script += "
   apt list --installed > /#{TARGET_PACKAGES_LOG_FILENAME}
@@ -105,7 +105,7 @@ end
 task :get_linux do
   add_to_version_log("Linux Repo", LINUX_REPO)
   add_to_version_log("Linux Branch", LINUX_BRANCH)
-  sh "git clone --single-branch -b #{LINUX_BRANCH} #{LINUX_REPO} #{LINUX_DIR}"
+  sh "git clone --depth=1 --single-branch -b #{LINUX_BRANCH} #{LINUX_REPO} #{LINUX_DIR}"
   if defined? IMPORT_KERNEL_DEFCONFIG and IMPORT_KERNEL_DEFCONFIG
     sh "cp #{IMPORT_KERNEL_DEFCONFIG} #{KERNEL_CONFIGS_DIR}"
   end
