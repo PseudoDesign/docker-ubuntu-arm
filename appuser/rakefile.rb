@@ -104,7 +104,7 @@ end
 task :get_linux do
   add_to_version_log("Linux Repo", LINUX_REPO)
   add_to_version_log("Linux Branch", LINUX_BRANCH)
-  sh "git clone --depth=1 --single-branch -b #{LINUX_BRANCH} #{LINUX_REPO} #{LINUX_DIR}"
+  sh "git clone --single-branch -b #{LINUX_BRANCH} #{LINUX_REPO} #{LINUX_DIR}"
   if defined? IMPORT_KERNEL_DEFCONFIG and IMPORT_KERNEL_DEFCONFIG
     sh "cp #{IMPORT_KERNEL_DEFCONFIG} #{KERNEL_CONFIGS_DIR}"
   end
