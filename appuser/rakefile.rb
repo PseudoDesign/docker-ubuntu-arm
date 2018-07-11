@@ -71,11 +71,10 @@ task :rootfs do
    apt-get upgrade -y
    apt-get install -y vim
   "
-  bootstrap_script += "echo '#{ROOT_PASSWORD}' passwd root --stdin\n" if defined? ENABLE_ROOT_ACCOUNT and ENABLE_ROOT_ACCOUNT
-  if defined? ENABLE_IMX_SERIAL_CONSOLE and ENABLE_IMX_SERIAL_CONSOLE
-  #  bootstrap_script = "
-  #   ln -s /lib/systemd/system/getty@.service getty@ttymxc0.service
-  #  "
+  if defined? ENABLE_ROOT_ACCOUNT and ENABLE_ROOT_ACCOUNT
+    bootstrap_script += "
+    (echo '#{ROOT_PASSWORD}'; echo '#{ROOT_PASSWORD}') | passwd root
+    "
   end
   bootstrap_script += "
   apt list --installed > /#{TARGET_PACKAGES_LOG_FILENAME}
