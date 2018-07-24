@@ -86,6 +86,15 @@ task :rootfs do
     sudo mv .bootstrap.sh #{ROOTFS_DIR}
     sudo chroot #{ROOTFS_DIR} ./.bootstrap.sh
    `
+  # Run the bootstrap extras
+  if defined? BOOTSTRAP_EXTRA_SCRIPT and BOOTSTRAP_EXTRA_SCRIPT
+    `
+     sudo cp /share/#{BOOTSTRAP_EXTRA_SCRIPT} #{ROOTFS_DIR}/.extra.sh
+     sudo chown root:root #{ROOTFS_DIR}/.extra.sh
+     sudo chmod +x #{ROOTFS_DIR}/.extra.sh
+     sudo chroot #{ROOTFS_DIR} ./.extra.sh
+    `
+  end
    # Clean up qemu and resolv.conf
    `
     sudo rm #{ROOTFS_DIR}/etc/resolv.conf
