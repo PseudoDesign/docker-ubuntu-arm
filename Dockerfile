@@ -26,4 +26,7 @@ RUN echo "appuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 ADD appuser/. /home/appuser
 RUN chown appuser:appuser /home/appuser -R
 
+# Add the google nameserver to resolve.conf
+RUN echo "nameserver 8.8.8.8" | tee /etc/resolv.conf > /dev/null
+
 WORKDIR /home/appuser
