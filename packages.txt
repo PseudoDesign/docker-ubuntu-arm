@@ -25,3 +25,4 @@ gcc-arm-linux-gnueabihf
 rake
 lib32z1
 dosfstools
+vim
