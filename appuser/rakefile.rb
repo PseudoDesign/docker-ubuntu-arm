@@ -98,6 +98,8 @@ task :rootfs do
    # Clean up qemu and resolv.conf
    `
     sudo rm #{ROOTFS_DIR}/etc/resolv.conf
+    sudo echo "nameserver 8.8.8.8" >> #{ROOTFS_DIR}/etc/resolv.conf
+    sudo echo "nameserver 8.8.4.4" >> #{ROOTFS_DIR}/etc/resolv.conf
     sudo rm #{ROOTFS_DIR}/usr/bin/qemu-arm-static
    `
    # Copy the packages log file
