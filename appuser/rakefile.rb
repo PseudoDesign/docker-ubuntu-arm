@@ -68,7 +68,7 @@ task :rootfs do
    apt-key add --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32
    apt-get update
    apt-get upgrade -y
-   apt-get install -y vim
+   apt-get install -y vim dosfstools
   "
   if defined? ENABLE_ROOT_ACCOUNT and ENABLE_ROOT_ACCOUNT
     bootstrap_script += "
@@ -91,6 +91,7 @@ task :rootfs do
      sudo cp /share/#{BOOTSTRAP_EXTRA_SCRIPT} #{ROOTFS_DIR}/.extra.sh
      sudo chown root:root #{ROOTFS_DIR}/.extra.sh
      sudo chmod +x #{ROOTFS_DIR}/.extra.sh
+     sudo dos2unix #{ROOTFS_DIR}/.extra.sh
      sudo chroot #{ROOTFS_DIR} ./.extra.sh
     `
   end
