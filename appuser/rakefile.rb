@@ -54,7 +54,6 @@ task :rootfs do
   mkdir -p #{ROOTFS_DIR}
   sudo debootstrap --arch=armhf --foreign --include=ubuntu-keyring,apt-transport-https,ca-certificates,openssl #{UBUNTU_VERSION} "#{ROOTFS_DIR}" http://ports.ubuntu.com
   sudo cp /usr/bin/qemu-arm-static #{ROOTFS_DIR}/usr/bin
-  sudo cp /etc/resolv.conf #{ROOTFS_DIR}/etc
   `
   # chroot into the rootfs dir, then run second stage
   bootstrap_script =
@@ -95,13 +94,6 @@ task :rootfs do
      sudo chroot #{ROOTFS_DIR} ./.extra.sh
     `
   end
-   # Clean up qemu and resolv.conf
-   `
-    sudo rm #{ROOTFS_DIR}/etc/resolv.conf
-    sudo echo "nameserver 8.8.8.8" >> #{ROOTFS_DIR}/etc/resolv.conf
-    sudo echo "nameserver 8.8.4.4" >> #{ROOTFS_DIR}/etc/resolv.conf
-    sudo rm #{ROOTFS_DIR}/usr/bin/qemu-arm-static
-   `
    # Copy the packages log file
    `sudo cp #{ROOTFS_DIR}/#{TARGET_PACKAGES_LOG_FILENAME} /home/appuser`
 end
